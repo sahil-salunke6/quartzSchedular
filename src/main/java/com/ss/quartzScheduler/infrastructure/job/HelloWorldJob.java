@@ -1,7 +1,7 @@
-package com.ss.quartzScheduler.job;
+package com.ss.quartzScheduler.infrastructure.job;
 
-import com.ss.quartzScheduler.model.JobExecutionMetadata;
-import com.ss.quartzScheduler.service.JobMetadataService;
+import com.ss.quartzScheduler.domain.entity.JobExecutionMetadata;
+import com.ss.quartzScheduler.usecase.SaveJobMetaDataUsaCase;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -74,8 +74,7 @@ public class HelloWorldJob implements Job {
                 dataMap.put(RETRY_COUNT_KEY, 0); // Reset for future executions
 
                 // Don't retry anymore
-                JobExecutionException jobException = new JobExecutionException("Job failed after maximum retry attempts", e, false);
-                throw jobException;
+                throw new JobExecutionException("Job failed after maximum retry attempts", e, false);
             }
         }
     }
@@ -105,7 +104,7 @@ public class HelloWorldJob implements Job {
                 .executionTime(formatDate(LocalDateTime.now()))
                 .build();
 
-        JobMetadataService.getInstance().saveMetadata(meta);
+        SaveJobMetaDataUsaCase.getInstance().saveMetadata(meta);
     }
 
     /**

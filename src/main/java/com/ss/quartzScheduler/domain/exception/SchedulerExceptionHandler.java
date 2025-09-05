@@ -1,4 +1,4 @@
-package com.ss.quartzScheduler.exception;
+package com.ss.quartzScheduler.domain.exception;
 
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
