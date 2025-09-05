@@ -24,9 +24,8 @@ public class JobScheduler implements CommandLineRunner {
                 .forJob(jobDetail)
                 .withIdentity("helloTrigger", "group1")
                 .startNow()
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withIntervalInSeconds(5)
-                        .repeatForever())
+                .withSchedule(CronScheduleBuilder.cronSchedule("*/5 * * * * ?")
+                        .withMisfireHandlingInstructionDoNothing())
                 .build();
 
         // Schedule job with Quartz
