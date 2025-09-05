@@ -1,0 +1,35 @@
+server:
+  port: 9091
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:quartzdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      schema: classpath:quartz/schema-h2.sql
+
+    properties:
+      org.quartz.scheduler.instanceName: QuartzScheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.clusterCheckinInterval: 10000
+      org.quartz.jobStore.dataSource: quartzDS
+      org.quartz.dataSource.quartzDS.driver: org.h2.Driver
+      org.quartz.dataSource.quartzDS.URL: jdbc:h2:mem:quartzdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      org.quartz.dataSource.quartzDS.user: sa
+      org.quartz.dataSource.quartzDS.password: sa
+      org.quartz.dataSource.quartzDS.maxConnections: 5
+      org.quartz.threadPool.threadCount: 10
