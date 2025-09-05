@@ -1,4 +1,4 @@
-package com.ss.quartzScheduler.config;
+package com.ss.quartzScheduler.infrastructure.config;
 
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ public class QuartzConfig {
 
         // Enable retry/recovery
         factory.setJobFactory((bundle, scheduler) -> {
-            Job job = null;
+            Job job;
             try {
                 job = bundle.getJobDetail().getJobClass().getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
