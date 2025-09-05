@@ -6,26 +6,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+/**
+ * JobScheduler initializes and schedules jobs with Quartz on application startup.
+ */
 @Component
 public class JobScheduler implements CommandLineRunner {
-
     @Autowired
     private Scheduler scheduler;
 
     @Override
     public void run(String... args) throws Exception {
         JobDetail jobDetail = JobBuilder.newJob(HelloWorldJob.class)
-                .withIdentity("helloJob", "group1")
+                .withIdentity("helloJob", "groupQuartz")
                 .storeDurably()
                 .requestRecovery(true) // Enables replay on failure/restart
                 .build();
 
         Trigger trigger = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
-                .withIdentity("helloTrigger", "group1")
+                .withIdentity("helloTrigger", "groupQuartz")
                 .startNow()
-                .withSchedule(CronScheduleBuilder.cronSchedule("*/5 * * * * ?")
-                        .withMisfireHandlingInstructionDoNothing())
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withIntervalInSeconds(5)
+                        .repeatForever())
                 .build();
 
         // Schedule job with Quartz

@@ -8,6 +8,10 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Quartz configuration class to set up the SchedulerFactoryBean
+ * with H2 database for job persistence and retry/recovery capabilities.
+ */
 @Configuration
 public class QuartzConfig {
 

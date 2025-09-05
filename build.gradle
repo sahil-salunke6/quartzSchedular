@@ -28,8 +28,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     // for local testing
     runtimeOnly 'com.h2database:h2'
+    // for production
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // Lombok for data classes
-    implementation 'org.projectlombok:lombok:1.18.28'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     // For Validation annotations
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.5.3'
     // For Logging using slf4j-api
