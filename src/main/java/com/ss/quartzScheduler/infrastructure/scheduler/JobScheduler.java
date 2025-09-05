@@ -1,6 +1,6 @@
-package com.ss.quartzScheduler.scheduler;
+package com.ss.quartzScheduler.infrastructure.scheduler;
 
-import com.ss.quartzScheduler.job.HelloWorldJob;
+import com.ss.quartzScheduler.infrastructure.job.HelloWorldJob;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
