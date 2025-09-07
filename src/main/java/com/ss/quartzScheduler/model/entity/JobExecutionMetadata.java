@@ -1,4 +1,4 @@
-package com.ss.quartzScheduler.domain.entity;
+package com.ss.quartzScheduler.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
