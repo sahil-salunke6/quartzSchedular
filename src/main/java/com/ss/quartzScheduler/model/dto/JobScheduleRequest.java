@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.JOB_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
 @Data
 @Schema(description = "Request to Schedule a job with cron expression")

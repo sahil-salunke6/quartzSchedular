@@ -6,8 +6,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.GROUP_NAME;
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.JOB_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.GROUP_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
 @Data
 @Schema(description = "Request to suspend a job")

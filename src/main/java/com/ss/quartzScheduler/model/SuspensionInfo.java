@@ -1,5 +1,6 @@
 package com.ss.quartzScheduler.model;
 
+import com.ss.quartzScheduler.model.enums.SuspensionType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package com.ss.quartzScheduler.job;
 
 import com.ss.quartzScheduler.model.entity.JobExecutionMetadata;
-import com.ss.quartzScheduler.service.SaveJobMetaDataService;
+import com.ss.quartzScheduler.service.DataBaseService;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import static com.ss.quartzScheduler.util.CronUtil.formatDate;
 
 /**
  * A simple Quartz Job that prints "Hello World!" with a timestamp.
@@ -104,17 +105,7 @@ public class HelloWorldJob implements Job {
                 .executionTime(formatDate(LocalDateTime.now()))
                 .build();
 
-        SaveJobMetaDataService.getInstance().saveMetadata(meta);
-    }
-
-    /**
-     * Format LocalDateTime to String
-     *
-     * @param dateTime LocalDateTime to format
-     * @return formatted date string
-     */
-    private String formatDate(LocalDateTime dateTime) {
-        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        DataBaseService.getInstance().saveMetadata(meta);
     }
 
 }

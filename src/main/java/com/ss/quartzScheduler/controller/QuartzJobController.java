@@ -1,8 +1,8 @@
 package com.ss.quartzScheduler.controller;
 
 import com.ss.quartzScheduler.exception.JobManagementException;
-import com.ss.quartzScheduler.model.DayOfWeekEnum;
-import com.ss.quartzScheduler.model.IntervalType;
+import com.ss.quartzScheduler.model.enums.DayOfWeekEnum;
+import com.ss.quartzScheduler.model.enums.IntervalType;
 import com.ss.quartzScheduler.model.SuspensionInfo;
 import com.ss.quartzScheduler.model.dto.*;
 import com.ss.quartzScheduler.service.QuartzJobManagementService;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.JOB_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
 @Slf4j
 @RestController

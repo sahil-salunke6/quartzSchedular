@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,13 @@ import java.util.stream.Collectors;
 public class CronUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(CronUtil.class);
+
+    // Default job name
+    public static final String JOB_NAME = "QuartzJob";
+    public static final String SCHEDULED_JOB_NAME = "QuartzScheduledJob";
+
+    // Default group name for jobs
+    public static final String GROUP_NAME = "QuartzGroup";
 
     /**
      * Validates a CRON expression
@@ -161,6 +169,26 @@ public class CronUtil {
         }
     }
 
+    /**
+     * Utility methods for date-time conversions and formatting
+     *
+     * @param date Date to convert
+     * @return LocalDateTime representation of the date
+     */
+    public static LocalDateTime convertToLocalDateTime(Date date) {
+        if (date == null) return null;
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    /**
+     * Format LocalDateTime to String
+     *
+     * @param dateTime LocalDateTime to format
+     * @return formatted date string
+     */
+    public static String formatDate(LocalDateTime dateTime) {
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 
     /**
      * Common CRON expressions
@@ -175,7 +203,6 @@ public class CronUtil {
         public static final String DAILY_AT_NOON = "0 0 12 * * ?";
         public static final String WEEKLY_MONDAY_9AM = "0 0 9 ? * MON";
         public static final String MONTHLY_FIRST_DAY_9AM = "0 0 9 1 * ?";
-        public static final String JOB_NAME = "QuartzJob";
-        public static final String GROUP_NAME = "QuartzGroup";
     }
+
 }
