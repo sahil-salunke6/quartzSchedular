@@ -7,6 +7,9 @@ import lombok.Data;
 import static com.ss.quartzScheduler.util.CronUtil.GROUP_NAME;
 import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
+/**
+ * Request DTO for triggering a job
+ */
 @Data
 @Schema(description = "Request to trigger a job")
 public class JobTriggerRequest {

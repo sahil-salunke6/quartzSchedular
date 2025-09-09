@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import static com.ss.quartzScheduler.util.CronUtil.GROUP_NAME;
 import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
+/**
+ * Request DTO for suspending a job
+ */
 @Data
 @Schema(description = "Request to suspend a job")
 public class SuspensionRequest {

@@ -4,6 +4,7 @@ import com.ss.quartzScheduler.service.QuartzJobManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@ComponentScan(basePackages = "com.ss.quartzScheduler.service")
 public class JobResumeJob implements Job {
 
     @Autowired

@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Swagger configuration for API documentation using OpenAPI 3.
+ */
 @Configuration
 public class SwaggerConfig {
 
@@ -22,8 +25,8 @@ public class SwaggerConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Development Team")
-                                .email("dev@example.com")
-                                .url("https://example.com"))
+                                .email("sahil.salunke66666@gmail.com")
+                                .url("https://github.com/sahil-salunke6/quartzSchedular"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))

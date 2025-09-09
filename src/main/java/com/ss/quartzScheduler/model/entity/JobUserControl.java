@@ -5,8 +5,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing user control information for jobs stored in the database.
+ */
 @Entity
-@Table(name = "QRTZ_JOB_USER_CONTROL")
+@Table(name = "DREAM_JOB_USER_CONTROL")
 @Builder
 @Data
 @NoArgsConstructor

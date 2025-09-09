@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO representing job suspension information.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

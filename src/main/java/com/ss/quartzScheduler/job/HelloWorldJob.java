@@ -1,11 +1,7 @@
 package com.ss.quartzScheduler.job;
 
-import com.ss.quartzScheduler.model.entity.JobExecutionMetadata;
 import com.ss.quartzScheduler.service.DataBaseService;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,6 +16,8 @@ import static com.ss.quartzScheduler.util.CronUtil.formatDate;
  * Also stores job scheduling metadata in Own created table
  */
 @Component
+@DisallowConcurrentExecution // Prevents concurrent execution of the same job
+@PersistJobDataAfterExecution // Persists job data after execution
 public class HelloWorldJob implements Job {
 
     private static final Logger logger = LoggerFactory.getLogger(HelloWorldJob.class);
@@ -43,7 +41,7 @@ public class HelloWorldJob implements Job {
 
         try {
             // Store job scheduling metadata
-            storeJobMetadata(context);
+            DataBaseService.getInstance().storeJobMetadata(context);
 
             // Execute the actual job logic
             System.out.println("Hello World! (" + formatDate(LocalDateTime.now()) + ")");
@@ -66,46 +64,20 @@ public class HelloWorldJob implements Job {
                 logger.info("Scheduling retry attempt {} of {}", retryCount, MAX_RETRY_ATTEMPTS);
 
                 // Create a JobExecutionException with retry flag
-                JobExecutionException jobException = new JobExecutionException("Job failed, scheduling retry", e, false);
+                JobExecutionException jobException = new JobExecutionException("Job failed, scheduling retry", e,
+                        false);
                 jobException.setRefireImmediately(true);
                 throw jobException;
 
             } else {
-                logger.error("Job failed after {} attempts. Marking as failed without further retries.", MAX_RETRY_ATTEMPTS);
+                logger.error("Job failed after {} attempts. Marking as failed without further retries.",
+                        MAX_RETRY_ATTEMPTS);
                 dataMap.put(RETRY_COUNT_KEY, 0); // Reset for future executions
 
                 // Don't retry anymore
                 throw new JobExecutionException("Job failed after maximum retry attempts", e, false);
             }
         }
-    }
-
-    /**
-     * Store job scheduling metadata in JobDataMap
-     *
-     * @param context JobExecutionContext context
-     */
-    private void storeJobMetadata(JobExecutionContext context) {
-        JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-
-        // Store scheduling time metadata in QRTZ_JOB_DETAILS as a JOB_DATA in a blob format
-        dataMap.put("lastScheduledTime", context.getScheduledFireTime());
-        dataMap.put("actualFireTime", context.getFireTime());
-        dataMap.put("nextFireTime", context.getNextFireTime());
-        dataMap.put("executionTime", LocalDateTime.now());
-
-        // Store scheduling time metadata in QRTZ_JOB_EXECUTION_METADATA table
-        JobExecutionMetadata meta = JobExecutionMetadata.builder()
-                .jobName(context.getJobDetail().getKey().getName())
-                .jobGroup(context.getJobDetail().getKey().getGroup())
-                .lastScheduledTime(formatDate(context.getScheduledFireTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()))
-                .actualFireTime(formatDate(context.getFireTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()))
-                .nextFireTime(context.getNextFireTime() != null ?
-                        formatDate(context.getNextFireTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()) : "N/A")
-                .executionTime(formatDate(LocalDateTime.now()))
-                .build();
-
-        DataBaseService.getInstance().saveMetadata(meta);
     }
 
 }

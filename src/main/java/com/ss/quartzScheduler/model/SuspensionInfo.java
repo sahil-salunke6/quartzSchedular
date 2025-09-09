@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Class representing job suspension information.
+ */
 @Getter
 public class SuspensionInfo {
     // Getters and setters

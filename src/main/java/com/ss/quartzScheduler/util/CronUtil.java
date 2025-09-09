@@ -1,10 +1,12 @@
 package com.ss.quartzScheduler.util;
 
+import com.ss.quartzScheduler.model.enums.DayOfWeekEnum;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -107,7 +109,8 @@ public class CronUtil {
      * @param month      - 1–12 (or * for every month)
      * @param year       - full year (e.g., 2025), or * for any year
      * @param repeat     - true = recurring, false = one-time
-     * @param interval   - repeat interval type: "secondly", "minutely", "hourly", "daily", "weekly", "monthly", "yearly", "custom-seconds"
+     * @param interval   - repeat interval type: "secondly", "minutely", "hourly", "daily", "weekly", "monthly",
+     *                   "yearly", "custom-seconds"
      * @param daysOfWeek - list of days of week (1=Sunday … 7=Saturday) for weekly jobs
      * @return Quartz cron expression as String
      */
@@ -165,9 +168,68 @@ public class CronUtil {
 
             default:
                 throw new IllegalArgumentException(
-                        "Invalid interval. Choose: secondly, custom-seconds, minutely, hourly, daily, weekly, monthly, yearly");
+                        "Invalid interval. Choose: secondly, custom-seconds, minutely, hourly, daily, weekly, " +
+                                "monthly, yearly");
         }
     }
+
+
+    /**
+     * Decode a CRON expression into a human-readable format.
+     *
+     * @param cron the CRON expression to decode
+     * @return human-readable description of the CRON schedule
+     */
+    public static String decodeCron(String cron) {
+        try {
+            String[] parts = cron.split(" ");
+            if (parts.length < 6 || parts.length > 7) {
+                return "Invalid cron format";
+            }
+
+            String sec = parts[0];
+            String min = parts[1];
+            String hour = parts[2];
+            String dayOfMonth = parts[3];
+            String month = parts[4];
+            String dayOfWeek = parts[5];
+            String year = parts.length == 7 ? parts[6] : "*";
+
+            String time = hour + ":" + min + ":" + sec;
+
+            String days = dayOfWeek.equals("?") ? dayOfMonth : decodeDayOfWeek(dayOfWeek);
+            String monthStr = month.equals("*") ? "every month" : month;
+            String yearStr = year.equals("*") ? "every year" : year;
+
+            return String.format("%s on %s of %s in %s", time, days, monthStr, yearStr);
+
+        } catch (Exception e) {
+            return "Error decoding cron: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Decode day of week part of CRON expression
+     *
+     * @param dow day of week string from CRON
+     * @return human-readable day(s) of week
+     */
+    private static String decodeDayOfWeek(String dow) {
+        if (dow.contains(",")) {
+            StringBuilder sb = new StringBuilder();
+            for (String d : dow.split(",")) {
+                int index = Integer.parseInt(d);
+                sb.append(DayOfWeekEnum.values()[index - 1]).append(",");
+            }
+            return sb.substring(0, sb.length() - 1);
+        } else if (dow.equals("*")) {
+            return "every day";
+        } else {
+            int index = Integer.parseInt(dow) - 1;
+            return DayOfWeekEnum.values()[index - 1].name();
+        }
+    }
+
 
     /**
      * Utility methods for date-time conversions and formatting

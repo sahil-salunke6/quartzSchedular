@@ -5,14 +5,11 @@ import com.ss.quartzScheduler.job.JobResumeJob;
 import com.ss.quartzScheduler.model.SuspensionInfo;
 import com.ss.quartzScheduler.model.enums.JobStatus;
 import com.ss.quartzScheduler.model.enums.SuspensionType;
-import com.ss.quartzScheduler.model.entity.JobUserControl;
 import com.ss.quartzScheduler.util.CronUtil;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,35 +21,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.ss.quartzScheduler.util.CronUtil.*;
 
+/**
+ * Service for managing Quartz jobs, including scheduling, triggering,
+ * suspending (temporarily and permanently), resuming, and extending suspensions.
+ * It also maintains job suspension states in memory.
+ */
 @Service
 public class QuartzJobManagementService {
 
     private static final Logger logger = LoggerFactory.getLogger(QuartzJobManagementService.class);
 
+    @Autowired
     private Scheduler scheduler;
     private final Map<String, SuspensionInfo> suspendedJobs = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    public void init() throws SchedulerException {
-        scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
-        logger.info("Quartz Scheduler started successfully");
-    }
-
-    @PreDestroy
-    public void shutdown() throws SchedulerException {
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown(true);
-            logger.info("Quartz Scheduler shut down successfully");
-        }
-    }
 
     /**
      * Schedule a job with a CRON expression
      */
     public void scheduleJob(String jobName, String cronExpression) throws SchedulerException {
         try {
-            jobName = SCHEDULED_JOB_NAME;
+//            jobName = SCHEDULED_JOB_NAME;
             JobKey jobKey = new JobKey(jobName, GROUP_NAME);
 
             // Delete existing job if it exists
@@ -62,16 +50,21 @@ public class QuartzJobManagementService {
             }
 
             // Create new job
-            JobDetail jobDetail = JobBuilder.newJob(ADRJob.class).withIdentity(jobKey).withDescription("Dynamic timestamp job").storeDurably(true).requestRecovery(true).build();
+            JobDetail jobDetail = JobBuilder.newJob(ADRJob.class).withIdentity(jobKey).withDescription("Dynamic " +
+                    "timestamp job").storeDurably(true).requestRecovery(true).build();
 
             // Create trigger
-            Trigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail).withIdentity(jobName + "Trigger", GROUP_NAME).withSchedule(CronScheduleBuilder.cronSchedule(cronExpression).withMisfireHandlingInstructionFireAndProceed()).build();
+            Trigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail).withIdentity(jobName + "Trigger",
+                    GROUP_NAME).withSchedule(CronScheduleBuilder.cronSchedule(cronExpression).withMisfireHandlingInstructionFireAndProceed()).build();
 
             scheduler.scheduleJob(jobDetail, trigger);
-            logger.info("Scheduled job: {} with cron: {}", jobName, cronExpression);
+            logger.info("Scheduled job: {} with cron: {} | {}", jobName, cronExpression,
+                    CronUtil.decodeCron(cronExpression));
 
             // Update job user data in database
-            storeJobUserData(jobName, GROUP_NAME, convertToLocalDateTime(trigger.getPreviousFireTime()), null,   // Will not be available until job actually fires
+            DataBaseService.getInstance().storeJobUserData(jobName, GROUP_NAME,
+                    convertToLocalDateTime(trigger.getPreviousFireTime()), null,   //
+                    // Will not be available until job actually fires
                     convertToLocalDateTime(trigger.getNextFireTime()), JobStatus.SCHEDULED.name());
 
 
@@ -91,10 +84,13 @@ public class QuartzJobManagementService {
             throw new SchedulerException("Cannot trigger suspended job: " + jobName + "." + groupName);
         }
 
-        JobDetail jobDetail = JobBuilder.newJob(ADRJob.class).withIdentity(JOB_NAME, GROUP_NAME).storeDurably().requestRecovery(true) // Enables replay on failure/restart
-                .build();
+        JobDetail jobDetail =
+                JobBuilder.newJob(ADRJob.class).withIdentity(JOB_NAME, GROUP_NAME).storeDurably().requestRecovery(true) // Enables replay on failure/restart
+                        .build();
 
-        Trigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail).withIdentity(jobName + "Trigger", GROUP_NAME).startNow().withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionNextWithRemainingCount()).build();
+        Trigger trigger =
+                TriggerBuilder.newTrigger().forJob(jobDetail).withIdentity(jobName + "Trigger", GROUP_NAME)
+                        .startNow().withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionNextWithRemainingCount()).build();
 
         // Schedule job with Quartz
         if (!scheduler.checkExists(jobDetail.getKey())) {
@@ -105,8 +101,10 @@ public class QuartzJobManagementService {
         }
 
         // Update job user data in database
-        storeJobUserData(jobName, GROUP_NAME, convertToLocalDateTime(trigger.getPreviousFireTime()), null,   // Will not be available until job actually fires
-                convertToLocalDateTime(trigger.getNextFireTime()), JobStatus.SCHEDULED.name());
+        DataBaseService.getInstance().storeJobUserData(jobName, GROUP_NAME,
+                convertToLocalDateTime(trigger.getPreviousFireTime()), null,   // Will
+                // not be available until job actually fires
+                convertToLocalDateTime(trigger.getNextFireTime()), JobStatus.ACTIVE.name());
     }
 
     /**
@@ -123,11 +121,13 @@ public class QuartzJobManagementService {
         scheduler.pauseJob(jobKey);
 
         // Update job status in user data
-        storeJobUserData(jobName, groupName, null, null, null, JobStatus.SUSPENDED_TEMP.name());
+        DataBaseService.getInstance().storeJobUserData(jobName, groupName, null, null, null,
+                JobStatus.SUSPENDED_TEMP.name());
 
         // Store suspension info
         String suspensionKey = jobName + "." + groupName;
-        SuspensionInfo suspensionInfo = new SuspensionInfo(SuspensionType.TEMPORARY, LocalDateTime.now(), resumeDateTime, "Temporary suspension");
+        SuspensionInfo suspensionInfo = new SuspensionInfo(SuspensionType.TEMPORARY, LocalDateTime.now(),
+                resumeDateTime, "Temporary suspension");
         suspendedJobs.put(suspensionKey, suspensionInfo);
 
         // Schedule automatic resume
@@ -150,11 +150,13 @@ public class QuartzJobManagementService {
         scheduler.pauseJob(jobKey);
 
         // Update job status in user data
-        storeJobUserData(jobName, groupName, null, null, null, JobStatus.SUSPENDED_PERM.name());
+        DataBaseService.getInstance().storeJobUserData(jobName, groupName, null, null, null,
+                JobStatus.SUSPENDED_PERM.name());
 
         // Store suspension info
         String suspensionKey = jobName + "." + groupName;
-        SuspensionInfo suspensionInfo = new SuspensionInfo(SuspensionType.PERMANENT, LocalDateTime.now(), null, reason != null ? reason : "Permanent suspension");
+        SuspensionInfo suspensionInfo = new SuspensionInfo(SuspensionType.PERMANENT, LocalDateTime.now(), null,
+                reason != null ? reason : "Permanent suspension");
         suspendedJobs.put(suspensionKey, suspensionInfo);
 
         logger.info("Job suspended permanently: {}.{}, Reason: {}", jobName, groupName, reason);
@@ -181,7 +183,8 @@ public class QuartzJobManagementService {
         scheduler.resumeJob(jobKey);
 
         // Update job status in user data
-        storeJobUserData(jobName, groupName, suspensionInfo.getSuspendedAt(), null, suspensionInfo.getResumeDateTime(), JobStatus.RESUMED.name());
+        DataBaseService.getInstance().storeJobUserData(jobName, groupName, suspensionInfo.getSuspendedAt(), null,
+                suspensionInfo.getResumeDateTime(), JobStatus.RESUMED.name());
 
         // Remove suspension info
         suspendedJobs.remove(suspensionKey);
@@ -247,11 +250,14 @@ public class QuartzJobManagementService {
         String resumeJobName = "resume-" + jobName;
         String resumeGroupName = "resume-" + groupName;
 
-        JobDetail resumeJob = JobBuilder.newJob(JobResumeJob.class).withIdentity(resumeJobName, resumeGroupName).usingJobData("originalJobName", jobName).usingJobData("originalGroupName", groupName).build();
+        JobDetail resumeJob =
+                JobBuilder.newJob(JobResumeJob.class).withIdentity(resumeJobName, resumeGroupName).usingJobData(
+                        "originalJobName", jobName).usingJobData("originalGroupName", groupName).build();
 
         Date resumeDate = Date.from(resumeDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        Trigger resumeTrigger = TriggerBuilder.newTrigger().withIdentity("resume-trigger-" + jobName, "resume-trigger-" + groupName).startAt(resumeDate).build();
+        Trigger resumeTrigger = TriggerBuilder.newTrigger().withIdentity("resume-trigger-" + jobName, "resume-trigger"
+                + "-" + groupName).startAt(resumeDate).build();
 
         scheduler.scheduleJob(resumeJob, resumeTrigger);
     }
@@ -268,43 +274,5 @@ public class QuartzJobManagementService {
             scheduler.deleteJob(resumeJobKey);
         }
     }
-
-
-    /**
-     * Store job user data in the database
-     *
-     * @param jobName           Job name
-     * @param groupName         Job group name
-     * @param lastScheduledTime Last scheduled fire time
-     * @param actualFireTime    Actual fire time
-     * @param nextFireTime      Next scheduled fire time
-     * @param status            Job status (e.g., "SCHEDULED", "ACTIVE", "COMPLETED", "FAILED", "SUSPENDED")
-     */
-    private void storeJobUserData(String jobName, String groupName, LocalDateTime lastScheduledTime, LocalDateTime actualFireTime, LocalDateTime nextFireTime, String status) {
-
-        try {
-            JobUserControl control = DataBaseService.getInstance().findByJobNameAndJobGroup(jobName, groupName).orElse(JobUserControl.builder().build());
-
-            control.setJobName(jobName);
-            control.setJobGroup(groupName);
-            if (lastScheduledTime != null) {
-                control.setLastScheduledTime(lastScheduledTime);
-            }
-            if (actualFireTime != null) {
-                control.setActualFireTime(actualFireTime);
-            }
-            if (nextFireTime != null) {
-                control.setNextFireTime(nextFireTime);
-            }
-            control.setStatus(status);
-
-            DataBaseService.getInstance().saveUserdata(control);
-
-            logger.info("Stored job user data for {}.{} -> status={}", jobName, groupName, status);
-        } catch (Exception e) {
-            logger.error("Failed to store job user data for {}.{}", jobName, groupName, e);
-        }
-    }
-
 
 }

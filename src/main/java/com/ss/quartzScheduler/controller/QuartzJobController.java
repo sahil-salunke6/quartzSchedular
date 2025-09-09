@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
 @Slf4j
 @RestController
-@RequestMapping("/quartz/jobs")
+@RequestMapping("/quartz/job")
 @RequiredArgsConstructor
 @Tag(name = "Quartz Job Management", description = "APIs for managing Quartz scheduled jobs")
 public class QuartzJobController {
@@ -38,8 +39,27 @@ public class QuartzJobController {
     private final QuartzJobManagementService jobManagementService;
 
     @PostMapping("/scheduleJob")
-    @Operation(summary = "Schedule a job using cron expression",
-            description = "Schedule a specific job to run according to the provided CRON expression")
+    @Operation(
+            summary = "Schedule a job using cron expression",
+            description = """
+                    Schedule a job with flexible intervals.
+                                    
+                    **Intervals supported:**
+                    - `secondly` → runs every N seconds (uses `second` as frequency).
+                    - `custom-seconds` → runs at specific seconds of every minute.
+                    - `minutely` → runs every N minutes (uses `minute` as frequency).
+                    - `hourly` → runs every N hours (uses `hour` as frequency).
+                    - `daily` → runs once a day at given time.
+                    - `weekly` → runs on given days of week at specified time.
+                    - `monthly` → runs on given day of each month.
+                    - `yearly` → runs once per year at the specified date/time.
+                                    
+                    **Notes:**
+                    - `daysOfWeek` is **required** for `weekly` interval.
+                    - For one-time jobs, set `repeat=false`.
+                    - Year is only used for one-time or yearly jobs.
+                    """
+    )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
@@ -48,23 +68,47 @@ public class QuartzJobController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Bad request - Job not found or suspended"
+                    description = "Bad request - Invalid interval, missing fields, or invalid cron expression",
+                    content = @Content(schema = @Schema(example = "{ \"success\": false, \"error\": \"At least one " +
+                            "day of week required for weekly schedule\" }"))
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "500",
-                    description = "Internal server error"
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(example = "{ \"success\": false, \"error\": \"Unexpected " +
+                            "server error\" }"))
             )
     })
     public ResponseEntity<Map<String, Object>> scheduleJob(
+            @Parameter(description = "Second (0-59). For 'secondly' interval, defines frequency.")
             @RequestParam(defaultValue = "0") int second,
+
+            @Parameter(description = "Minute (0-59). For 'minutely' interval, defines frequency.")
             @RequestParam(defaultValue = "0") int minute,
+
+            @Parameter(description = "Hour (0-23). For 'hourly' interval, defines frequency.")
             @RequestParam(defaultValue = "0") int hour,
+
+            @Parameter(description = "Day of month (1-31)")
             @RequestParam(defaultValue = "1") int day,
+
+            @Parameter(description = "Month (1-12)")
             @RequestParam(defaultValue = "1") int month,
+
+            @Parameter(description = "Year (e.g., 2025). Used only for one-time or yearly jobs.")
             @RequestParam(defaultValue = "2025") int year,
-            @RequestParam(defaultValue = "true") boolean repeat,
+
+            @Parameter(description = "Repeat job? true=recurring, false=one-time. Null=one-time by default.")
+            @RequestParam(required = false) Boolean repeat,
+
+            @Parameter(description = "Interval type (secondly, custom-seconds, minutely, hourly, daily, weekly, " +
+                    "monthly, yearly).")
             @RequestParam IntervalType interval,
+
+            @Parameter(description = "Days of week (e.g., MONDAY, TUESDAY). Required if interval=weekly.")
             @RequestParam(required = false) List<DayOfWeekEnum> daysOfWeek,
+
+            @Parameter(description = "Job name")
             @RequestParam(defaultValue = JOB_NAME) String jobName) {
 
         Map<String, Object> response = new HashMap<>();
@@ -72,7 +116,7 @@ public class QuartzJobController {
         try {
             List<Integer> dayValues = (daysOfWeek != null)
                     ? daysOfWeek.stream().map(DayOfWeekEnum::getQuartzValue).collect(Collectors.toList())
-                    : null;
+                    : Collections.emptyList();
 
             // Generate CRON expression from parameters
             String cronExpression = CronUtil.generateCron(

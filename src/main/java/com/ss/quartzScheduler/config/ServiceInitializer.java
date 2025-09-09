@@ -7,8 +7,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Service initializer to set up JobMetadataService with the repository
- * after the Spring context is initialized.
+ * ServiceInitializer is responsible for initializing the database service
+ * with the required repositories after the application context is set up.
  */
 @Configuration
 public class ServiceInitializer {
