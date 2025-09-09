@@ -1,37 +1,46 @@
 package com.ss.quartzScheduler.job;
 
-import com.ss.quartzScheduler.service.QuartzJobManagementService;
-import lombok.extern.slf4j.Slf4j;
+import com.ss.quartzScheduler.model.enums.JobStatus;
+import com.ss.quartzScheduler.service.DataBaseService;
+import com.ss.quartzScheduler.util.CronUtil;
 import org.quartz.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 /**
  * Job class for automatically resuming suspended jobs
  */
-@Slf4j
 @Component
-@ComponentScan(basePackages = "com.ss.quartzScheduler.service")
 public class JobResumeJob implements Job {
-
-    @Autowired
-    private QuartzJobManagementService service;
-
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-        String originalJobName = dataMap.getString("originalJobName");
-        String originalGroupName = dataMap.getString("originalGroupName");
-
         try {
-            if (service != null) {
-                service.revokeSuspension(originalJobName, originalGroupName);
-                log.info("Auto-resumed job: {}.{}", originalJobName, originalGroupName);
+            JobDataMap dataMap = context.getMergedJobDataMap();
+            String originalJobName = dataMap.getString("originalJobName");
+            String originalGroupName = dataMap.getString("originalGroupName");
+
+            Scheduler scheduler = context.getScheduler();
+            JobKey jobKey = new JobKey(originalJobName, originalGroupName);
+
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.resumeJob(jobKey);
+                System.out.println("Temporary suspended " + originalJobName + " got Resumed at: " + CronUtil.formatDate(LocalDateTime.now()));
+
+                // Update job status in user data
+                DataBaseService.getInstance().storeJobUserData(originalJobName, originalGroupName, null, null,
+                        null, JobStatus.RESUMED.name());
+
+                // Cancel the auto-resume job itself
+                JobKey resumeJobKey = context.getJobDetail().getKey();
+                if (scheduler.checkExists(resumeJobKey)) {
+                    scheduler.deleteJob(resumeJobKey);
+                }
+            } else {
+                System.out.println("Job not found: " + jobKey);
             }
         } catch (SchedulerException e) {
-            log.error("Failed to auto-resume job: {}.{}", originalJobName, originalGroupName, e);
-            throw new JobExecutionException(e);
+            throw new JobExecutionException("Failed to resume job", e);
         }
     }
 }
