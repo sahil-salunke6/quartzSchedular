@@ -33,10 +33,7 @@ public class SwaggerConfig {
                 .servers(List.of(
                         new Server()
                                 .url("http://localhost:9091")
-                                .description("Development server"),
-                        new Server()
-                                .url("https://api.quartzpoc.com")
-                                .description("Production server")
+                                .description("Development server")
                 ));
     }
 }
