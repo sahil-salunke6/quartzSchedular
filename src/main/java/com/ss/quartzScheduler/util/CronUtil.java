@@ -226,7 +226,7 @@ public class CronUtil {
             return "every day";
         } else {
             int index = Integer.parseInt(dow) - 1;
-            return DayOfWeekEnum.values()[index - 1].name();
+            return DayOfWeekEnum.values()[index].name();
         }
     }
 
