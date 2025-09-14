@@ -24,6 +24,7 @@ spring:
       org.quartz.scheduler.instanceId: AUTO
       org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      org.quartz.jobStore.misfireThreshold: 60000 # 60s window to detect misfire
       org.quartz.jobStore.isClustered: true
       org.quartz.jobStore.clusterCheckinInterval: 10000
       org.quartz.jobStore.dataSource: quartzDS

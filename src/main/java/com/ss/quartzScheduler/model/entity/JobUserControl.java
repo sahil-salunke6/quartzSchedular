@@ -1,42 +1,42 @@
 package com.ss.quartzScheduler.model.entity;
 
-import com.ss.quartzScheduler.model.SuspensionType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-
+/**
+ * Entity representing user control information for jobs stored in the database.
+ */
 @Entity
-@Table(name = "QRTZ_J0OB_USER_CONTROL")
+@Table(name = "DREAM_JOB_USER_CONTROL")
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class JobUserControl {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "JOB_NAME")
-    private String suspendedJobName;
+    private String jobName;
 
     @Column(name = "JOB_GROUP")
-    private String suspendedJobGroup;
+    private String jobGroup;
 
-    @Column(name = "SUSPENSION_TYPE")
-    private final SuspensionType suspendedType;
+    @Column(name = "last_scheduled_time")
+    private LocalDateTime lastScheduledTime;
 
-    @Column(name = "SUSPENDED_AT")
-    private final LocalDateTime suspendedAt;
+    @Column(name = "actual_fire_time")
+    private LocalDateTime actualFireTime;
 
-    @Column(name = "JOB_RESUME_AT")
-    private LocalDateTime resumeAt;
-
-    @Column(name = "SUSPENSION_REASON")
-    private final String suspensionReason;
+    @Column(name = "next_fire_time")
+    private LocalDateTime nextFireTime;
 
     @Column(name = "JOB_STATUS")
-    private final String status;
+    private String status;
 
 }
 
