@@ -1,7 +1,7 @@
-package com.ss.quartzScheduler.infrastructure.job;
+package com.ss.quartzScheduler.job;
 
-import com.ss.quartzScheduler.domain.entity.JobExecutionMetadata;
-import com.ss.quartzScheduler.usecase.SaveJobMetaDataUsaCase;
+import com.ss.quartzScheduler.model.entity.JobExecutionMetadata;
+import com.ss.quartzScheduler.service.SaveJobMetaDataService;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -45,12 +45,12 @@ public class HelloWorldJob implements Job {
             storeJobMetadata(context);
 
             // Execute the actual job logic
-            System.out.println("Hello World! (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ")");
+            System.out.println("Hello World! (" + formatDate(LocalDateTime.now()) + ")");
 
-            // Simulate random failure for retry demonstration
-            if (Math.random() < 0.3) {
-                throw new RuntimeException("Simulated failure for retry");
-            }
+            // Simulate random failure to test retry functionality
+//            if (Math.random() < 0.3) {
+//                throw new RuntimeException("Simulated failure for retry");
+//            }
 
             // Reset retry count on success
             dataMap.put(RETRY_COUNT_KEY, 0);
@@ -104,7 +104,7 @@ public class HelloWorldJob implements Job {
                 .executionTime(formatDate(LocalDateTime.now()))
                 .build();
 
-        SaveJobMetaDataUsaCase.getInstance().saveMetadata(meta);
+        SaveJobMetaDataService.getInstance().saveMetadata(meta);
     }
 
     /**

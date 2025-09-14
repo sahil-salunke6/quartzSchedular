@@ -1,6 +1,6 @@
-package com.ss.quartzScheduler.domain.repository;
+package com.ss.quartzScheduler.repository;
 
-import com.ss.quartzScheduler.domain.entity.JobExecutionMetadata;
+import com.ss.quartzScheduler.model.entity.JobExecutionMetadata;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

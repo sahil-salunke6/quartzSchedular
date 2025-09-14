@@ -1,9 +1,9 @@
-package com.ss.quartzScheduler.infrastructure.config;
+package com.ss.quartzScheduler.config;
 
+import com.ss.quartzScheduler.repository.JobExecutionMetadataRepository;
+import com.ss.quartzScheduler.service.SaveJobMetaDataService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
-import com.ss.quartzScheduler.domain.repository.JobExecutionMetadataRepository;
-import com.ss.quartzScheduler.usecase.SaveJobMetaDataUsaCase;
 
 /**
  * Service initializer to set up JobMetadataService with the repository
@@ -20,6 +20,6 @@ public class ServiceInitializer {
 
     @PostConstruct
     public void init() {
-        SaveJobMetaDataUsaCase.init(repository);
+        SaveJobMetaDataService.init(repository);
     }
 }

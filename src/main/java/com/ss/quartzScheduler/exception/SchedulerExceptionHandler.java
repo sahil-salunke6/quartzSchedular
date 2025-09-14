@@ -1,5 +1,6 @@
-package com.ss.quartzScheduler.domain.exception;
+package com.ss.quartzScheduler.exception;
 
+import com.ss.quartzScheduler.model.dto.ApiResponse;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -57,6 +58,14 @@ public class SchedulerExceptionHandler {
         errorResponse.put("unscheduleFiringTrigger", e.unscheduleFiringTrigger());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(JobManagementException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJobManagementException(JobManagementException ex) {
+        logger.error("Job management exception occurred", ex);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Job management error: " + ex.getMessage()));
     }
 
     /**

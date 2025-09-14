@@ -1,34 +1,34 @@
-package com.ss.quartzScheduler.usecase;
+package com.ss.quartzScheduler.service;
 
-import com.ss.quartzScheduler.domain.entity.JobExecutionMetadata;
-import com.ss.quartzScheduler.domain.repository.JobExecutionMetadataRepository;
+import com.ss.quartzScheduler.model.entity.JobExecutionMetadata;
+import com.ss.quartzScheduler.repository.JobExecutionMetadataRepository;
 
 /**
  * Service to handle job metadata operations.
  * Implements Singleton pattern to ensure a single instance.
  */
-public class SaveJobMetaDataUsaCase {
+public class SaveJobMetaDataService {
 
     // Singleton instance
-    private static SaveJobMetaDataUsaCase instance;
+    private static SaveJobMetaDataService instance;
 
     // Repository for job execution metadata
     private final JobExecutionMetadataRepository repository;
 
     // Private constructor to enforce singleton pattern
-    private SaveJobMetaDataUsaCase(JobExecutionMetadataRepository repository) {
+    private SaveJobMetaDataService(JobExecutionMetadataRepository repository) {
         this.repository = repository;
     }
 
     // Synchronized method to initialize the singleton instance
     public static synchronized void init(JobExecutionMetadataRepository repository) {
         if (instance == null) {
-            instance = new SaveJobMetaDataUsaCase(repository);
+            instance = new SaveJobMetaDataService(repository);
         }
     }
 
     // Method to get the singleton instance
-    public static SaveJobMetaDataUsaCase getInstance() {
+    public static SaveJobMetaDataService getInstance() {
         if (instance == null) {
             throw new IllegalStateException("JobMetadataService not initialized. Call init() first.");
         }
