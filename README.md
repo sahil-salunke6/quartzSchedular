@@ -1,7 +1,3 @@
-Got it 🚀 — here’s the **final polished README** for your Quartz Scheduler project with updated API section.
-
----
-
 # ⏰ Quartz Job Scheduler with Suspension & Management APIs
 
 [![Build Status](https://github.com/sahil-salunke6/quartzSchedular/actions/workflows/ci.yml/badge.svg)](https://github.com/sahil-salunke6/quartzSchedular/actions)
