@@ -64,10 +64,13 @@ cd quartzSchedular
 ```
 
 Application will start at:
-👉 [http://localhost:8080](http://localhost:8080)
+👉 [http://localhost:9091](http://localhost:9091)
 
 Swagger UI available at:
-👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+👉 [http://localhost:9091/swagger-ui.html](http://localhost:9091/swagger-ui.html)
+
+H2 console UI available at:
+👉 [http://localhost:9091/h2-console.html](http://localhost:9091/h2-console.html)
 
 ---
 
@@ -160,5 +163,3 @@ Includes unit tests for:
 🔗 [LinkedIn](https://www.linkedin.com/in/sahildsalunke/)
 
 ---
-
-Do you want me to also include a **visual architecture diagram** (showing Quartz + DB + APIs) in this README for better project presentation?
