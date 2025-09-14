@@ -7,7 +7,7 @@ import lombok.*;
  * Entity representing job execution metadata stored in the database.
  */
 @Entity
-@Table(name = "QRTZ_JOB_EXECUTION_METADATA")
+@Table(name = "DREAM_JOB_EXECUTION_METADATA")
 @Getter
 @Setter
 @Builder

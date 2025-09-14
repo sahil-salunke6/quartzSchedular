@@ -1,6 +1,6 @@
 package com.ss.quartzScheduler.config;
 
-import org.quartz.*;
+import org.quartz.Job;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;

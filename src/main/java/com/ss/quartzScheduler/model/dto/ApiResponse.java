@@ -6,6 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Standard API response wrapper.
+ *
+ * @param <T> the type of the response data
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

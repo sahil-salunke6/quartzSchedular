@@ -1,4 +1,4 @@
-package com.ss.quartzScheduler.model;
+package com.ss.quartzScheduler.model.enums;
 
 /**
  * Enum representing different interval types for scheduling

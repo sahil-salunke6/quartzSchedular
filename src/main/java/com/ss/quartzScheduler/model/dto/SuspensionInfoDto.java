@@ -1,6 +1,6 @@
 package com.ss.quartzScheduler.model.dto;
 
-import com.ss.quartzScheduler.model.SuspensionType;
+import com.ss.quartzScheduler.model.enums.SuspensionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO representing job suspension information.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.GROUP_NAME;
-import static com.ss.quartzScheduler.util.CronUtil.CommonCronExpressions.JOB_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.GROUP_NAME;
+import static com.ss.quartzScheduler.util.CronUtil.JOB_NAME;
 
+/**
+ * Request DTO for triggering a job
+ */
 @Data
 @Schema(description = "Request to trigger a job")
 public class JobTriggerRequest {
