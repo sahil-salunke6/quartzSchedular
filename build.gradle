@@ -30,7 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
     // for local db H2
-    runtimeOnly 'com.h2database:h2'
+    implementation 'com.h2database:h2'
     // for production
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
